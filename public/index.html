@@ -1,0 +1,218 @@
+<!DOCTYPE>
+<html ng-app="myApp">
+<head>
+    <title>IoT Experiment</title>
+    <style>
+	p {
+		font-size: 22px;
+		font-weight: bold;
+		font-style: italic;
+		color: rgb(62, 62, 62);
+		margin: 18px;
+	}
+	ul {
+		float: left;
+		border-radius: 5px;
+		border: solid 1px rgb(198, 198, 198);
+		padding: 7px 11px;
+		background-color: rgb(248,248,248);
+	}
+	li {
+		float: left;
+		background-color: rgb(200,200,200);
+		padding: 5px 19px;
+		margin: 5px 2px 5px 0px;
+		color: black;
+		list-style: none;
+	}
+	li:hover, li:hover a {
+		background-color: rgb(6,179,6);
+		color:white;
+	}
+	li a {
+		text-decoration: none;
+		color: white;
+		font-size: 21px;
+		font-style: italic;
+		text-shadow: 1px 0px 3px rgb(157, 157, 157);
+	}
+	li:nth-child(1) { border-radius: 4px 0px 0px 4px; margin-left: 1px;}
+	li:nth-child(3) { border-radius: 0px 4px 4px 0px;}
+	.active {
+		background-color: rgb(6,179,6);
+	}
+	</style>
+</head>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<link rel="stylesheet" href="bower_components/c3/c3.css" />
+<body>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+  <script src="controller/controller.js"></script>
+  <script src="../../node_modules/chart.js/Chart.min.js"></script>
+  <script src="../../node_modules/angular-chart.js/dist/angular-chart.min.js"></script>
+  <script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/d3/d3.js"></script>
+<script src="bower_components/c3/c3.js"></script>
+<script src="bower_components/angular-chart/angular-chart.js"></script>
+  <section ng-controller="AppCtrl">
+    <ul ng-init="tab = 1">
+    <li ng-class="{active:tab===1}">
+    				<a href ng-click="tab = 1">IoT Management</a>
+    			</li>
+    			<li ng-class="{active:tab===2}">
+    				<a href ng-click="tab = 2">Payment</a>
+    			</li>
+    			<br><br>
+<div ng-show="tab === 1" class="container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th colspan=11>Object Management</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>Endpoint Name</th>
+          <th>Object</th>
+          <th>Instance</th>
+          <th>Value</th>
+          <th colspan=7>Action</th>
+        </tr>
+        <tr><input type="hidden" ng-model="client._id"/>
+          <td><input class="form-control" ng-model="client.name"></td>
+          <td><input class="form-control" ng-model="client.object"></td>
+          <td><input class="form-control" ng-model="client.instance"></td>
+          <td><input class="form-control" ng-model="client.value"></td>
+          <td><button class="btn btn-primary" ng-click="Create(client.object,client.instance,client.value)">Create</button></td>
+        </tr>
+        <tr ng-repeat="client in iotlist">
+          <td>{{client.name}}</td>
+          <td>{{client.object}}</td>
+          <td>{{client.instance}}</td>
+          <td>{{client.value}}</td>
+          <td colspan=7><button class="btn btn-danger" ng-click="Delete(client._id)">Delete</button></td>
+        </tr>
+        <tr>
+          <th colspan=11>Resource Management</th>
+        </tr>
+        <tr>
+          <th>Endpoint Name</th>
+          <th>Object</th>
+          <th>Instance</th>
+          <th>Resource</th>
+          <th>Value</th>
+          <th>Argument</th>
+          <th colspan=5>Action</th>
+        </tr>
+        <tr>
+          <td><input class="form-control" ng-model="epname"></td>
+          <td><input class="form-control" ng-model="resource.object"></td>
+          <td><input class="form-control" ng-model="resource.instance"></td>
+          <td><input class="form-control" ng-model="resource.resourceId"></td>
+          <td><input class="form-control" ng-model="resource.value"></td>
+          <td><input class="form-control" ng-model="resource.argument"></td>
+          <td><button class="btn btn-primary" ng-click="Discover(resource.object, resource.instance, resource.resourceId, epname)">Discover</button></td>
+          <td><button class="btn btn-primary" ng-click="Write(resource.object, resource.instance, resource.resourceId, resource.value, epname)">Write</button></td>
+          <td><button class="btn btn-primary" ng-click="Read(resource.object, resource.instance, resource.resourceId, epname)">Read</button></td>
+          <td><button class="btn btn-primary" ng-click="Observe(resource.object, resource.instance, resource.resourceId, epname)">Observe</button></td>
+          <td><button class="btn btn-primary" ng-click="Execute(resource.object,resource.instance, resource.resourceId, epname)">Execute</button></td>
+        </tr>
+        <tr ng-repeat="resource in resourcelist">
+          <td>{{epname}}</td>
+          <td>{{resource.object}}</td>
+          <td>{{resource.instance}}</td>
+          <td>{{resource.resourceId}}</td>
+          <td colspan=2>{{resource.value}}</td>
+          <td><button class="btn btn-warning" ng-click="Cancel(resource.object, resource.instance, resource.resourceId, epname)">Cancel</button></td>
+        </tr>
+        <tr>
+          <th colspan=11>Resource Attribute</th>
+        </tr>
+        <tr>
+          <th>Endpoint Name</th>
+          <th>Object</th>
+          <th>Instance</th>
+          <th>Resource</th>
+          <th>Minimum Period</th>
+          <th>Maximum Period</th>
+          <th>Greater Than</th>
+          <th>Less Than</th>
+          <th>Step</th>
+          <th>Cancel</th>
+          <th>Action</th>
+        </tr>
+        <tr>
+          <td><input class="form-control" ng-model="attribute.epname"></td>
+          <td><input class="form-control" ng-model="attribute.object"></td>
+          <td><input class="form-control" ng-model="attribute.instance"></td>
+          <td><input class="form-control" ng-model="attribute.resourceId"></td>
+          <td><input class="form-control" ng-model="attribute.minimumPeriod"></td>
+          <td><input class="form-control" ng-model="attribute.maximumPeriod"></td>
+          <td><input class="form-control" ng-model="attribute.greaterThan"></td>
+          <td><input class="form-control" ng-model="attribute.lessThan"></td>
+          <td><input class="form-control" ng-model="attribute.step"></td>
+          <td><input class="form-control" ng-model="attribute.cancel"></td>
+          <td><button class="btn btn-primary" ng-click="WriteAttr(attribute.object, attribute.instance, attribute.resourceId, attribute.minimumPeriod, attribute.maximumPeriod, attribute.greaterThan, attribute.lessThan, attribute.step, attribute.cancel, epname)">Write Attribute</button></td>
+        </tr>
+        <tr ng-repeat="attribute in attributelist">
+          <td>{{epname}}</td>
+          <td>{{attribute.object}}</td>
+          <td>{{attribute.instance}}</td>
+          <td>{{attribute.resourceId}}</td>
+          <td>{{attribute.minimumPeriod}}</td>
+          <td>{{attribute.maximumPeriod}}</td>
+          <td>{{attribute.greaterThan}}</td>
+          <td>{{attribute.lessThan}}</td>
+          <td>{{attribute.step}}</td>
+          <td>{{attribute.cancel}}</td>
+        </tr>
+        <tr ng-show="notify === 1"><td><font color="red">Notification</font></td>
+          <td><font color="red">Object</font></td>
+          <td><font color="red">Instance</font></td>
+          <td><font color="red">ResourceId</font></td>
+          <td><font color="red">Value</font></td>
+          <td><font color="red">Time</font></td>
+        </tr>
+        <tr ng-show="notify === 1"><td><font color="red">Motion Detected!!!</font></td>
+          <td><font color="red">{{notification.object}}</font></td>
+          <td><font color="red">{{notification.instance}}</font></td>
+          <td><font color="red">{{notification.resource}}</font></td>
+          <td><font color="red">{{notification.value}}</font></td>
+          <td><font color="red">{{notification.notifytime | date:'M/d/yyyy HH:mm:ss'}}</font></td>
+        </tr>
+        <tr ng-init="payment = 0" ng-show="payment === 2">
+          <td>Resource Analytic</td>
+        </tr>
+        <tr>
+          <input type="hidden" ng-model="reqnum"/><input type="hidden" ng-model="resnum"/>
+        <td ng-show="payment === 2" colspan=11><angular-chart options="options" instance="instance"></angular-chart></td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+<div ng-show="tab === 2">
+    <h3>Please select monthly payment mode for the client</h3>
+    <table class="table">
+      <thead>
+        <tr>{{paymentchosen}}</tr>
+        <tr ng-repeat="client in iotlist">
+          <input type="hidden" ng-model="client._id"/>
+          <td>{{client.name}}</td>
+          <td>{{client.object}}</td>
+          <td>{{client.instance}}</td>
+          <td>{{client.value}}</td>
+          <td><button class="btn btn-primary" ng-click="basic(client._id)">Basic</button></td>
+          <td><button class="btn btn-primary" ng-click="premium(client._id)">Premium</button></td>
+        </tr>
+      </thead>
+  </div>
+</ul>
+</section>
+
+</body>
+</html>
